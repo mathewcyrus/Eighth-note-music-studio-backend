@@ -8,22 +8,15 @@ const CourseSchema = new mongoose.Schema(
     },
     enrolledstudents: {
       type: Number,
-      required: true,
     },
     courseprice: {
       type: Number,
       required: true,
     },
     courseimage: {
-      type: Number,
+      type: String,
       required: true,
     },
-    subcourses: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Subcourse",
-      },
-    ],
   },
   { timestamps: true }
 );

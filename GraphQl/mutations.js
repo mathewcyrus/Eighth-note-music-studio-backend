@@ -1,7 +1,14 @@
-import { GraphQLInt, GraphQLList, GraphQLString } from "graphql";
+import {
+  GraphQLFloat,
+  GraphQLID,
+  GraphQLInt,
+  GraphQLList,
+  GraphQLString,
+} from "graphql";
 import {
   CourseType,
   StudioSessionType,
+  subcoursesContentType,
   subCoursesType,
   UserType,
 } from "./types.js";
@@ -17,43 +24,6 @@ import {
   verifyUser,
 } from "../Utilities/verification.js";
 import Course from "../Models/Course.js";
-const sessions = [
-  {
-    id: 1,
-    sessiontype: "audiosession",
-    startTime: "2:03",
-    endTime: "4:00",
-    cost: 3000,
-  },
-  {
-    id: 2,
-    sessiontype: "videosession",
-    startTime: "3:03",
-    endTime: "5:00",
-    cost: 1000,
-  },
-  {
-    id: 3,
-    sessiontype: "photoshoot",
-    startTime: "3:03",
-    endTime: "5:00",
-    cost: 5000,
-  },
-  {
-    id: 4,
-    sessiontype: "audiosession",
-    startTime: "5:03",
-    endTime: "7:00",
-    cost: 7000,
-  },
-  {
-    id: 5,
-    sessiontype: "audiosession",
-    startTime: "6:03",
-    endTime: "7:00",
-    cost: 4000,
-  },
-];
 
 export const subscribeSession = {
   name: "mutation",
@@ -154,7 +124,8 @@ export const deleteUser = {
   },
 };
 
-//All muations on courses
+//All mutations on courses
+//Creating a course
 
 export const createCourse = {
   name: "Coursecreation",
@@ -162,40 +133,89 @@ export const createCourse = {
   type: CourseType,
   args: {
     coursename: { type: GraphQLString },
-    enrolledstudents: { type: GraphQLInt },
     courseprice: { type: GraphQLInt },
     courseimage: { type: GraphQLString },
-    subcourse: { type: new GraphQLList(subCoursesType) },
+  },
+  async resolve(parents, args, { res }) {
+    try {
+      const course = new Course({
+        coursename: args.coursename,
+        courseprice: args.courseprice,
+        courseimage: args.courseimage,
+      });
+
+      const result = await course.save();
+      return result;
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ error: error.message });
+    }
+  },
+};
+//mutation for deleting a course
+export const deleteCourse = {
+  name: "Course Deletion",
+  description: "Deletes a course",
+  type: CourseType,
+  args: {
+    id: { type: GraphQLID },
+  },
+  async resolve(parents, args, { res }) {
+    try {
+      await Course.findByIdAndDelete(args.id);
+    } catch (error) {
+      res.status(500).json({ error });
+    }
+  },
+};
+// creating a subcourse
+export const createSubCourse = {
+  name: "SubCoursecreation",
+  description: "Creating a sub course",
+  type: subCoursesType,
+  args: {
+    subcoursenumber: { type: GraphQLString },
+    subcoursetitle: { type: GraphQLString },
+    subcoursedescription: { type: GraphQLString },
+    maincourseID: { type: GraphQLID },
   },
   async resolve(parents, args, context) {
     try {
-      const course = new Course({
-        courseName: args.courseName,
-        enrolledstudents: args.enrolledstudents,
-        courseprice: args.courseprice,
-        courseimage: args.courseimage,
-        subcourses: args.subcourse,
+      const Subcourse = new SubCourse({
+        subcoursetitle: args.subcoursetitle,
+        subcoursenumber: args.subcoursenumber,
+        maincourseID: args.maincourseID,
       });
-      const subcourses = [];
-      for (const subcourse of args.subcourse) {
-        const newSubcourse = new SubCourse({
-          subcoursetitle: subcourse.subcoursetitle,
-          subcoursenumber: subcourse.subcoursenumber + 1,
-        });
-        const subcourseContents = [];
-        for (const subcourseContent of subcourse.subcourseContents) {
-          const newSubcourseContent = new SubCoursecontent({
-            contenttitle: subcourseContent.contenttitle,
-            videourl: subcourseContent.videourl,
-            captions: subcourseContent.captions,
-          });
-          subcourseContents.push(newSubcourseContent);
-        }
-        newSubcourse.subcourseContents = subcourseContents;
-        subcourses.push(newSubcourse);
-      }
-      course.subcourses = subcourses;
-      const result = await course.save();
+
+      const result = await Subcourse.save();
+      return result;
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ error: error.message });
+    }
+  },
+};
+//creating subCourse content
+export const createSubCourseContent = {
+  name: "SubCourse content creation",
+  description: "Creating a sub course content",
+  type: subcoursesContentType,
+  args: {
+    contenttitle: { type: GraphQLString },
+    videourl: { type: GraphQLString },
+    videocaptions: { type: GraphQLString },
+    subcourseID: { type: GraphQLID },
+  },
+  async resolve(parents, args, context) {
+    try {
+      const newSubcourseContent = new SubCoursecontent({
+        contenttitle: args.contenttitle,
+        videourl: args.videourl,
+        videocaptions: args.videocaptions,
+        subcourseID: args.subcourseID,
+      });
+
+      const result = await newSubcourseContent.save();
       return result;
     } catch (error) {
       console.error(error);

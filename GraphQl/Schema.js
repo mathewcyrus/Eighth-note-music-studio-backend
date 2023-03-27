@@ -2,7 +2,12 @@ import graphql, { GraphQLObjectType, GraphQLSchema } from "graphql";
 import _ from "lodash";
 
 import {
-  allCourses,
+  getAllCourses,
+  getAsingleCourse,
+  getAllSubCourses,
+  getAllSubCoursesContent,
+  getAsingleSubCourse,
+  getAsingleSubCourseContent,
   singleSession,
   getAUser,
   allSessions,
@@ -14,15 +19,23 @@ import {
   deleteUser,
   loginUser,
   createCourse,
+  createSubCourse,
+  deleteCourse,
+  createSubCourseContent,
 } from "./mutations.js";
 //define query types,
 const RootQuery = new GraphQLObjectType({
   name: "Rootquery",
   description: "This is the root query",
   fields: () => ({
-    allCourses,
+    getAllCourses,
     singleSession,
+    getAsingleCourse,
     allSessions,
+    getAllSubCourses,
+    getAllSubCoursesContent,
+    getAsingleSubCourse,
+    getAsingleSubCourseContent,
     allUsers,
     getAUser,
   }),
@@ -35,8 +48,11 @@ const RootMutations = new GraphQLObjectType({
     subscribeSession,
     registerUser,
     deleteUser,
+    deleteCourse,
     loginUser,
     createCourse,
+    createSubCourse,
+    createSubCourseContent,
   },
 });
 

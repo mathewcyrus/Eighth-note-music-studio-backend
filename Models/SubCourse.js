@@ -7,15 +7,16 @@ const SubCourseSchema = new mongoose.Schema(
       required: true,
     },
     subcoursenumber: {
+      type: Number,
+      required: true,
+    },
+    subcoursedescription: {
+      type: String,
+    },
+    maincourseID: {
       type: String,
       required: true,
     },
-    subcourseContents: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "SubcourseContent",
-      },
-    ],
   },
   { timestamps: true }
 );

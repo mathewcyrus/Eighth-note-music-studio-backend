@@ -10,8 +10,12 @@ const SubCourseContentsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    captions: {
+    videocaptions: {
       type: String,
+    },
+    subcourseID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubCourse",
     },
   },
   { timestamps: true }
